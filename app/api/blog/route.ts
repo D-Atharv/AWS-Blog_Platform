@@ -22,7 +22,7 @@ export async function POST(req: Request) {
 export async function PUT(req: Request) {
   const { id, title, content } = await req.json();
   const updatedBlog = await prisma.blog.update({
-    where: { id: parseInt(id) },
+    where: { id: id },
     data: { title, content },
   });
   return NextResponse.json(updatedBlog);
@@ -32,7 +32,7 @@ export async function PUT(req: Request) {
 export async function DELETE(req: Request) {
   const { id } = await req.json();
   await prisma.blog.delete({
-    where: { id: parseInt(id) },
+    where: { id: id },
   });
   return NextResponse.json({ message: 'Blog deleted' });
 }
