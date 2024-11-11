@@ -18,19 +18,19 @@ export default function CreateBlog() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-4 bg-white p-6 rounded-lg shadow">
       <input
         type="text"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         placeholder="Title"
-        className="p-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
+        className="p-3 border border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
       />
       <textarea
         value={content}
         onChange={(e) => setContent(e.target.value)}
         placeholder="Content"
-        className="p-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
+        className="p-3 border border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
       />
       <button
         type="submit"

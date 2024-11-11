@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link'; // Import Link from next/link for navigation
+import Link from 'next/link';
 
 export default function Register() {
   const [email, setEmail] = useState('');
@@ -38,15 +38,15 @@ export default function Register() {
   };
 
   return (
-    <form onSubmit={handleRegister} className="flex flex-col gap-4">
-      <h1 className="text-2xl font-bold mb-4">Register</h1>
-      {error && <p className="text-red-500">{error}</p>}
+    <form onSubmit={handleRegister} className="flex flex-col gap-4 bg-white p-6 rounded-lg shadow-md max-w-md mx-auto">
+      <h1 className="text-2xl font-bold mb-4 text-gray-700">Register</h1>
+      {error && <p className="text-red-500 text-sm">{error}</p>}
       <input
         type="email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         placeholder="Email"
-        className="p-2 border border-gray-300 rounded-lg"
+        className="p-3 border border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
         required
       />
       <input
@@ -54,12 +54,12 @@ export default function Register() {
         value={password}
         onChange={(e) => setPassword(e.target.value)}
         placeholder="Password"
-        className="p-2 border border-gray-300 rounded-lg"
+        className="p-3 border border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
         required
       />
       <button
         type="submit"
-        className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+        className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
       >
         Register
       </button>

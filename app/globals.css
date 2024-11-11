@@ -1,3 +1,19 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+body {
+  @apply bg-gray-50 text-gray-800 font-sans;
+}
+
+a {
+  @apply transition-colors duration-300;
+}
+
+a:hover {
+  @apply text-blue-600;
+}
+
+button {
+  @apply cursor-pointer transition-transform transform hover:scale-105;
+}
