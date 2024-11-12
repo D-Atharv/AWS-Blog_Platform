@@ -3,32 +3,28 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-// Fetch all blog posts (GET)
 export async function GET() {
   const blogs = await prisma.blog.findMany();
   return NextResponse.json(blogs);
 }
 
-// Create a new blog post (POST)
 export async function POST(req: Request) {
-  const { title, content } = await req.json();
+  const { title, content, imagePath } = await req.json();
   const newBlog = await prisma.blog.create({
-    data: { title, content },
+    data: { title, content, imagePath },
   });
   return NextResponse.json(newBlog);
 }
 
-// Update an existing blog post (PUT)
 export async function PUT(req: Request) {
-  const { id, title, content } = await req.json();
+  const { id, title, content, imagePath } = await req.json();
   const updatedBlog = await prisma.blog.update({
-    where: { id: id },
-    data: { title, content },
+    where: { id },
+    data: { title, content, imagePath },
   });
   return NextResponse.json(updatedBlog);
 }
 
-// Delete an existing blog post (DELETE)
 export async function DELETE(req: Request) {
   const { id } = await req.json();
   await prisma.blog.delete({

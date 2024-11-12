@@ -1,32 +1,55 @@
-// EditBlog component
 'use client';
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
+import Image from 'next/image';
 
 export default function EditBlog() {
-  const { id } = useParams(); // Getting the ID from the URL params
+  const { id } = useParams(); 
   const router = useRouter();
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
+  const [image, setImage] = useState<File | null>(null);
+  const [existingImagePath, setExistingImagePath] = useState<string | null>(null);
 
   useEffect(() => {
     if (id) {
-      fetch(`/api/blog/${id}`) // Corrected URL to fetch the blog by ID
+      fetch(`/api/blog/${id}`)
         .then((res) => res.json())
         .then((data) => {
           setTitle(data.title);
           setContent(data.content);
+          setExistingImagePath(data.imagePath); 
         })
-        .catch((err) => console.error('Error fetching blog:', err)); // Handle errors
+        .catch((err) => console.error('Error fetching blog:', err));
     }
   }, [id]);
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setImage(e.target.files[0]);
+    }
+  };
+
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    let imagePath = existingImagePath;
+    if (image) {
+      const formData = new FormData();
+      formData.append('file', image);
+
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+      const data = await res.json();
+      imagePath = data.filePath;
+    }
+
     await fetch('/api/blog', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id, title, content }),
+      body: JSON.stringify({ id, title, content, imagePath }),
     });
     router.push('/');
   };
@@ -56,6 +79,17 @@ export default function EditBlog() {
         placeholder="Content"
         className="p-3 border border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
       />
+      <div className="mb-4">
+        {existingImagePath && (
+          <Image src={existingImagePath} alt="Current blog image" width={200} height={200} className="mb-4 max-w-full h-auto rounded-lg" />
+        )}
+        <label className="block text-gray-700 font-medium mb-2">Update Image:</label>
+        <input
+          type="file"
+          onChange={handleImageChange}
+          className="p-3 border border-gray-200 rounded-lg"
+        />
+      </div>
       <div className="flex gap-4">
         <button
           type="submit"

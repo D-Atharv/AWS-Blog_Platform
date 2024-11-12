@@ -8,17 +8,16 @@ generator client {
   binaryTargets = ["native", "debian-openssl-1.1.x"]
 }
 
-
 model Blog {
   id        String   @id @default(uuid())
   title     String
   content   String
+  imagePath String? 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   author    User?    @relation(fields: [authorId], references: [id])
   authorId  Int?
 }
-
 
 model User {
   id        Int      @id @default(autoincrement())
