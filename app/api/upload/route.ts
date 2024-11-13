@@ -1,37 +1,48 @@
 import { NextResponse } from 'next/server';
-import AWS from 'aws-sdk';
+import { S3Client, PutObjectCommand} from '@aws-sdk/client-s3';
 import { v4 as uuidv4 } from 'uuid';
 
-const s3 = new AWS.S3({
-  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-  region: process.env.AWS_REGION,
+const region = process.env.AWS_REGION;
+const accessKeyId = process.env.AWS_ACCESS_KEY_ID;
+const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
+const bucketName = process.env.S3_BUCKET_NAME;
+
+if (!accessKeyId || !secretAccessKey || !region || !bucketName) {
+  throw new Error("Missing AWS S3 configuration environment variables.");
+}
+
+const s3Client = new S3Client({
+  region,
+  credentials: {
+    accessKeyId,
+    secretAccessKey,
+  },
 });
 
-const bucketName = process.env.S3_BUCKET_NAME as string;
-
 export async function POST(req: Request) {
-  const data = await req.formData();
-  const file = data.get('file') as File;
-
-  if (!file) {
-    return NextResponse.json({ error: 'No file uploaded' }, { status: 400 });
-  }
-
-  const fileName = `${uuidv4()}-${file.name}`;
-  const fileBuffer = await file.arrayBuffer();
-
-  const params = {
-    Bucket: bucketName, // Bucket is now assured to be a string
-    Key: `uploads/${fileName}`, // Folder in S3 where the file will be stored
-    Body: Buffer.from(fileBuffer),
-    ContentType: file.type, // Set content type based on the file
-    ACL: 'public-read', // Makes the file publicly accessible
-  };
-
   try {
-    const uploadResult = await s3.upload(params).promise();
-    return NextResponse.json({ filePath: uploadResult.Location }); // Return the S3 URL of the uploaded file
+    const data = await req.formData();
+    const file = data.get('file') as File;
+
+    if (!file) {
+      return NextResponse.json({ error: 'No file uploaded' }, { status: 400 });
+    }
+
+    const fileName = `uploads/${uuidv4()}-${file.name}`;
+    const fileBuffer = Buffer.from(await file.arrayBuffer());
+
+    const params = {
+      Bucket: bucketName,
+      Key: fileName,
+      Body: fileBuffer,
+      ContentType: file.type,
+    };
+
+    const command = new PutObjectCommand(params);
+    await s3Client.send(command);
+
+    const filePath = `https://${bucketName}.s3.${region}.amazonaws.com/${fileName}`;
+    return NextResponse.json({ filePath });
   } catch (error) {
     console.error('Error uploading to S3:', error);
     return NextResponse.json({ error: 'Error uploading file' }, { status: 500 });
