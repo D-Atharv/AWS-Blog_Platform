@@ -1,22 +1,23 @@
-import { Resend } from 'resend';
+import fetch from 'node-fetch'; 
 
-const resend = new Resend(process.env.RESEND_API_KEY as string);
-
-async function sendWelcomeEmail(userEmail: string): Promise<void> {
+async function triggerLambdaToSendEmail(userEmail: string) {
   try {
-    const emailData = {
-      from: 'onboarding@resend.dev', // Resend's testing domain or your verified domain
-      to: userEmail,
-      subject: 'Welcome to Blog Platform!',
-      html: '<p>Hello! Welcome to Blog Platform again. We"re glad to have you here!</p>',
-    };
+      const response = await fetch(process.env.LAMBDA_EMAIL_URL!, {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ userEmail }),
+      });
 
-    const response = await resend.emails.send(emailData);
-    console.log('Welcome email sent:', response);
+      if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+      } else {
+          console.log('Email sent via Lambda');
+      }
   } catch (error) {
-    console.error('Failed to send welcome email:', error);
-    throw new Error('Email sending failed');
+      console.error('Error calling Lambda:', error);
   }
 }
 
-export {sendWelcomeEmail}
+export {triggerLambdaToSendEmail}

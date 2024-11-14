@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { comparePassword, generateToken } from '@/lib/auth';
+import { triggerLambdaToSendEmail } from '@/lib/emailService';
 import prisma from '@/lib/prisma';
-import { sendWelcomeEmail } from '@/lib/emailService';
 
 export async function POST(req: Request) {
   const { email, password } = await req.json();
@@ -22,7 +22,7 @@ export async function POST(req: Request) {
   response.cookies.set('token', token, { path: '/', httpOnly: true, maxAge: 3600 });
 
   //Send the welcome email asynchronously (no `await` - it's asynchronous)
-  sendWelcomeEmail(email);
+  triggerLambdaToSendEmail(email);
 
   return response;
 }
