@@ -1,9 +1,7 @@
 import { NextResponse } from 'next/server';
 import { comparePassword, generateToken } from '@/lib/auth';
-import { PrismaClient } from '@prisma/client';
-import { sendWelcomeEmail } from '@/lib/emailService'; 
-
-const prisma = new PrismaClient();
+import prisma from '@/lib/prisma';
+import { sendWelcomeEmail } from '@/lib/emailService';
 
 export async function POST(req: Request) {
   const { email, password } = await req.json();
@@ -19,9 +17,12 @@ export async function POST(req: Request) {
   }
 
   const token = generateToken(user.id);
+
   const response = NextResponse.json({ token });
   response.cookies.set('token', token, { path: '/', httpOnly: true, maxAge: 3600 });
-  
-  await sendWelcomeEmail(email);
+
+  //Send the welcome email asynchronously (no `await` - it's asynchronous)
+  sendWelcomeEmail(email);
+
   return response;
 }
